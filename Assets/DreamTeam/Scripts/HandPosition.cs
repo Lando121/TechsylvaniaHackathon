@@ -8,6 +8,7 @@ using Leap;
 public class HandPosition : MonoBehaviour {
 
 	private HandController handController;
+	public List<byte[]> frameList;
 	private Frame frame;
 	private Frame snapFrame;
 	private HandList hands;
@@ -33,12 +34,20 @@ public class HandPosition : MonoBehaviour {
 		if (!triggered) {
 			frame = handController.GetFrame ();
 			leftHand = frame.Hands.Leftmost;
-			if (snapFrame != null) {
+			if (frameList != null) {
 				this.GetComponent<Snapshot> ().snapshotButton.gameObject.SetActive(false);
+				this.GetComponent<Snapshot> ().saveButton.gameObject.SetActive(false);
 				if (!timer.isCounting) {
 					timer.StartCounting (TriggerTime);
 				}
-				float avgDistance = CalcAvgDistToSnapshot (snapFrame);
+				float avgDistance = float.MaxValue;
+				for (int i = 0; i < frameList.Count; i++) {
+					Frame reconstructedFrame = new Frame ();
+					reconstructedFrame.Deserialize (frameList[i]);
+					avgDistance = Mathf.Min(avgDistance, CalcAvgDistToSnapshot (reconstructedFrame));
+
+				}
+				Debug.Log (avgDistance);
 				if (avgDistance < distLimit) {
 					timer.Tick (Time.deltaTime);
 				} else {
@@ -47,7 +56,6 @@ public class HandPosition : MonoBehaviour {
 				if (timer.IsDone ()) {
 					SignTriggered ();
 				}
-
 			}
 		}
 
@@ -69,8 +77,20 @@ public class HandPosition : MonoBehaviour {
 		float distance = 0f;
 	
 		FingerList fingers = leftHand.Fingers;
-		foreach (Finger finger in fingers) {
-			Finger snapFinger = snapshot.Finger (finger.Id);
+		foreach(Finger.FingerType fingerType in (Finger.FingerType[]) Enum.GetValues(typeof(Finger.FingerType))){
+			Finger finger = null;
+			foreach (Finger tmpFinger in fingers) {
+				if (fingerType == tmpFinger.Type) {
+					finger = tmpFinger;
+				}
+			}
+			Finger snapFinger = null;
+			foreach(Finger tmpFinger2 in snapshot.Fingers){
+				if (fingerType == tmpFinger2.Type) {
+					snapFinger = tmpFinger2;
+				}
+			}
+				
 			Bone bone;
 			Bone snapBone;
 			foreach (Bone.BoneType boneType in (Bone.BoneType[]) Enum.GetValues(typeof(Bone.BoneType))) {
@@ -81,7 +101,7 @@ public class HandPosition : MonoBehaviour {
 			}
 		}
 		Debug.Log (distance / fingers.Count);
-		return (distance / fingers.Count) - 325;
+		return (distance / fingers.Count);
 			//Debug.Log (distance / fingers.Count);
 			//Debug.Log (frame.Finger (snapFrame.Fingers [0].Id).TipPosition);
 	}

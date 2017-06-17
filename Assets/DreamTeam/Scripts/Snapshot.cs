@@ -7,6 +7,7 @@ using Leap;
 public class Snapshot : MonoBehaviour {
 
 	public Button snapshotButton;
+	public Button saveButton;
 	private HandController handController;
 	public Frame snapFrame;
 
@@ -15,6 +16,15 @@ public class Snapshot : MonoBehaviour {
 		Button btn = snapshotButton.GetComponent<Button>();
 		handController = this.GetComponent<HandController> ();
 		btn.onClick.AddListener(TakeSnapshot);
+
+		Button saveBtn = saveButton.GetComponent<Button> ();
+		saveBtn.onClick.AddListener (SaveSnaps);
+	}
+
+	void SaveSnaps(){
+		
+		SaveSnapshot saveSnap = this.GetComponent<SaveSnapshot> ();
+		saveSnap.SaveToNewFile ();
 	}
 
 	void TakeSnapshot()
