@@ -23,6 +23,7 @@ public class SaveSnapshot : MonoBehaviour {
 	}
 
 	public void AddSnapshot(Frame snapshot){
+		this.GetComponent<HandPosition> ().ids.Add (snapshot.Id);
 		frameList.Add(snapshot.Serialize);
 		//SaveToNewFile ();
 	}

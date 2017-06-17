@@ -28,7 +28,7 @@ public class LoadSnapshot : MonoBehaviour {
 			i += frame.Length;
 			frameList.Add(frame);
 		}
-		this.GetComponent<HandPosition> ().frameList = frameList;
+		this.GetComponent<HandPosition> ().setFrameList (frameList);
 	}
 	
 	// Update is called once per frame

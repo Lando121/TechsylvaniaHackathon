@@ -17,7 +17,14 @@ public class HandPosition : MonoBehaviour {
 	private Timer timer;
 	private const float TriggerTime = 1f; 
 	private const float distLimit = 15f;
-	private bool active = false;
+	private bool active = true;
+	public List<long> ids = new List<long>();
+	private const float Techsylvania = 568154f;
+	private const float Google = 568417f;
+	private const float Youtube = 568635f;
+	private float currentID;
+	private float triggerTime = float.MaxValue;
+	private const float SleepTime = 2f;
 
 	// Use this for initialization
 	void Start () {
@@ -30,7 +37,9 @@ public class HandPosition : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
+		if (Time.time - triggerTime > SleepTime) {
+			active = true;
+		}
 		if (active) {
 			frame = handController.GetFrame ();
 			leftHand = frame.Hands.Leftmost;
@@ -44,8 +53,11 @@ public class HandPosition : MonoBehaviour {
 				for (int i = 0; i < frameList.Count; i++) {
 					Frame reconstructedFrame = new Frame ();
 					reconstructedFrame.Deserialize (frameList[i]);
-					avgDistance = Mathf.Min(avgDistance, CalcAvgDistToSnapshot (reconstructedFrame));
-
+					float tmp = CalcAvgDistToSnapshot (reconstructedFrame);
+					if (avgDistance > tmp) {
+						avgDistance = tmp;
+						currentID = reconstructedFrame.Id;
+					}
 				}
 				Debug.Log (avgDistance);
 				if (avgDistance < distLimit) {
@@ -54,6 +66,7 @@ public class HandPosition : MonoBehaviour {
 					timer.Reset ();
 				}
 				if (timer.IsDone ()) {
+					triggerTime = Time.time;
 					SignTriggered ();
 				}
 			}
@@ -106,10 +119,26 @@ public class HandPosition : MonoBehaviour {
 			//Debug.Log (frame.Finger (snapFrame.Fingers [0].Id).TipPosition);
 	}
 
-
+	public void setFrameList(List<byte[]> list){
+		frameList = list;
+		for(int i = 0; i < frameList.Count; i++){
+			Frame reconstructedFrame = new Frame ();
+			reconstructedFrame.Deserialize (frameList[i]);
+			ids.Add (reconstructedFrame.Id);
+			Debug.Log (ids[i]);
+		}
+	}
 
 	private void SignTriggered(){
 		active = false;
-		System.Diagnostics.Process.Start("http://google.com");
+		if (currentID == Techsylvania) {
+			System.Diagnostics.Process.Start("http://techsylvania.co/");		
+		} else if (currentID == Google) {
+			System.Diagnostics.Process.Start("http://google.com");		
+		} else if (currentID == Youtube) {
+			System.Diagnostics.Process.Start("http://youtube.com");		
+		} 
+
+
 	}
 }
