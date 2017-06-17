@@ -17,7 +17,7 @@ public class HandPosition : MonoBehaviour {
 	private Timer timer;
 	private const float TriggerTime = 1f; 
 	private const float distLimit = 15f;
-	private bool triggered = false;
+	private bool active = false;
 
 	// Use this for initialization
 	void Start () {
@@ -31,7 +31,7 @@ public class HandPosition : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (!triggered) {
+		if (active) {
 			frame = handController.GetFrame ();
 			leftHand = frame.Hands.Leftmost;
 			if (frameList != null) {
@@ -62,8 +62,8 @@ public class HandPosition : MonoBehaviour {
 
 	}
 
-	public void UnTrigger(){
-		triggered = false;
+	public void activate(){
+		active = true;
 	}
 
 	public void setSnapshot (Frame snapshot){
@@ -109,7 +109,7 @@ public class HandPosition : MonoBehaviour {
 
 
 	private void SignTriggered(){
-		triggered = true;
+		active = false;
 		System.Diagnostics.Process.Start("http://google.com");
 	}
 }
