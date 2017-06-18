@@ -16,7 +16,7 @@ public class HandPosition : MonoBehaviour {
 	private Hand rightHand;
 	private Timer timer;
 	private const float TriggerTime = 1f; 
-	private const float distLimit = 15f;
+	private const float distLimit = 20f;
 	private bool active = true;
 	public List<long> ids = new List<long>();
 	private const float Techsylvania = 568154f;
